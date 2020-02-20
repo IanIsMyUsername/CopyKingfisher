@@ -49,6 +49,70 @@ public enum KingfisherOptionsInfoItem {
     /// the image being retrieved from cache, set `.forceRefresh` as well.
     case transition(ImageTransition)
     
+    /// If set, Kingfisher will try to retrieve the image from memory cache first. If the image is not in memory
+    /// cache, then it will ignore the disk cache but download the image again from network. This is useful when
+    /// you want to display a changeable image behind the same url at the same app session, while avoiding download
+    /// it for multiple times.
+    case fromMemoryCacheOrRefresh
+    
+    /// The associated value will be used as the target queue of dispatch callbacks when retrieving images from
+    /// cache. If not set, Kingfisher will use `.mainCurrentOrAsync` for callbacks.
+    ///
+    /// - Note:
+    /// This option does not affect the callbacks for UI related extension methods. You will always get the
+    /// callbacks called from main queue.
+    case callbackQueue(CallbackQueue)
+    
+    /// Processor for processing when the downloading finishes, a processor will convert the downloaded data to an image
+    /// and/or apply some filter on it. If a cache is connected to the downloader (it happens when you are using
+    /// KingfisherManager or any of the view extension methods), the converted image will also be sent to cache as well.
+    /// If not set, the `DefaultImageProcessor.default` will be used.
+    case processor(ImageProcessor)
+    
+    /// Supplies a `CacheSerializer` to convert some data to an image object for
+    /// retrieving from disk cache or vice versa for storing to disk cache.
+    /// If not set, the `DefaultCacheSerializer.default` will be used.
+    case cacheSerializer(CacheSerializer)
+    
+    /// An `ImageModifier` is for modifying an image as needed right before it is used. If the image was fetched
+    /// directly from the downloader, the modifier will run directly after the `ImageProcessor`. If the image is being
+    /// fetched from a cache, the modifier will run after the `CacheSerializer`.
+    ///
+    /// Use `ImageModifier` when you need to set properties that do not persist when caching the image on a concrete
+    /// type of `Image`, such as the `renderingMode` or the `alignmentInsets` of `UIImage`.
+    case imageModifier(ImageModifier)
+    
+    /// If set, the disk storage loading will happen in the same calling queue. By default, disk storage file loading
+    /// happens in its own queue with an asynchronous dispatch behavior. Although it provides better non-blocking disk
+    /// loading performance, it also causes a flickering when you reload an image from disk, if the image view already
+    /// has an image set.
+    ///
+    /// Set this options will stop that flickering by keeping all loading in the same queue (typically the UI queue
+    /// if you are using Kingfisher's extension methods to set an image), with a tradeoff of loading performance.
+    case loadDiskFileSynchronously
+    
+    /// The expiration setting for memory cache. By default, the underlying `MemoryStorage.Backend` uses the
+    /// expiration in its config for all items. If set, the `MemoryStorage.Backend` will use this associated
+    /// value to overwrite the config setting for this caching item.
+    case memoryCacheExpiration(StorageExpiration)
+    
+    /// The expiration extending setting for memory cache. The item expiration time will be incremented by this
+    /// value after access.
+    /// By default, the underlying `MemoryStorage.Backend` uses the initial cache expiration as extending
+    /// value: .cacheTime.
+    ///
+    /// To disable extending option at all add memoryCacheAccessExtendingExpiration(.none) to options.
+    case memoryCacheAccessExtendingExpiration(ExpirationExtending)
+    
+    /// The expiration setting for disk cache. By default, the underlying `DiskStorage.Backend` uses the
+    /// expiration in its config for all items. If set, the `DiskStorage.Backend` will use this associated
+    /// value to overwrite the config setting for this caching item.
+    case diskCacheExpiration(StorageExpiration)
+    
+    /// The expiration extending setting for disk cache. The item expiration time will be incremented by this value after access.
+    /// By default, the underlying `DiskStorage.Backend` uses the initial cache expiration as extending value: .cacheTime.
+    /// To disable extending option at all add diskCacheAccessExtendingExpiration(.none) to options.
+    case diskCacheAccessExtendingExpiration(ExpirationExtending)
 }
 
 // Improve performance by parsing the input `KingfisherOptionsInfo` (self) first.
@@ -57,17 +121,63 @@ public enum KingfisherOptionsInfoItem {
 /// in `KingfisherOptionsInfoItem`. When a `KingfisherOptionsInfo` sent to Kingfisher related methods, it will be
 /// parsed and converted to a `KingfisherParsedOptionsInfo` first, and pass through the internal methods.
 public struct KingfisherParsedOptionsInfo {
-    var callbackQueue:
+    
+    public var targetCache:ImageCache? = nil
+    public var originalCache: ImageCache? = nil
+    public var downloader: ImageDownloader? = nil
+    public var transition:ImageTransition = .none
+    
+    public var fromMemoryCacheOrRefresh = false
     
     public var processor: ImageProcessor = DefaultImageProcessor.default
-    public var scaleFactor: CGFloat = 1.0
+    public var imageModifier: ImageModifier? = nil
     
- 
-    init(_ info: KingfisherOptionsInfo?) {
+    public var callbackQueue: CallbackQueue = .mainCurrentOrAsync
+    
+    public var preloadAllAnimationData = false
+        
+    public var scaleFactor: CGFloat = 1.0
+        
+    public var cacheSerializer: CacheSerializer = DefaultCacheSerializer.default
+    public var onlyLoadFirstFrame = false
+    
+    public var loadDiskFileSynchronously = false
+    public var memoryCacheExpiration: StorageExpiration? = nil
+    public var memoryCacheAccessExtendingExpiration: ExpirationExtending = .cacheTime
+    public var diskCacheExpiration: StorageExpiration? = nil
+    public var diskCacheAccessExtendingExpiration: ExpirationExtending = .cacheTime
+    
+    public init(_ info: KingfisherOptionsInfo?) {
         guard let info = info else {
             return
         }
+        for option in info {
+            switch option {
+            case .targetCache(let value): targetCache = value
+            case .originalCache(let value): originalCache = value
+            case .downloader(let value): downloader = value
+            case .transition(let value): transition = value
+            case .fromMemoryCacheOrRefresh: fromMemoryCacheOrRefresh = true
+            case .processor(let value): processor = value
+            case .imageModifier(let value): imageModifier = value
+            case .cacheSerializer(let value): cacheSerializer = value
+            case .callbackQueue(let value): callbackQueue = value
+            case .loadDiskFileSynchronously: loadDiskFileSynchronously = true
+            case .memoryCacheExpiration(let expiration): memoryCacheExpiration = expiration
+            case .memoryCacheAccessExtendingExpiration(let expirationExtending): memoryCacheAccessExtendingExpiration = expirationExtending
+            case .diskCacheExpiration(let expiration): diskCacheExpiration = expiration
+            case .diskCacheAccessExtendingExpiration(let expirationExtending): diskCacheAccessExtendingExpiration = expirationExtending
+                
+            }
+        }
        
+    }
+    
+}
+
+extension KingfisherParsedOptionsInfo {
+    var imageCreatingOptions: ImageCreatingOptions {
+        return ImageCreatingOptions(scale: scaleFactor, duration: 0.0, preloadAll: preloadAllAnimationData, onlyFirstFrame: onlyLoadFirstFrame )
     }
     
 }

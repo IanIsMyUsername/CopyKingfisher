@@ -111,11 +111,7 @@ public struct DefaultImageProcessor: ImageProcessor {
         case .image(let image):
             return image.kf.scaled(to: options.scaleFactor)
         case .data(let data):
-            return Kin
-            
+            return KingfisherWrapper.image(data: data, options: options.imageCreatingOptions)
         }
     }
-    
-    
-    
 }

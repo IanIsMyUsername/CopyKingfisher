@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		36367D8C23FD34E3007097B9 /* CallbackQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367D8B23FD34E3007097B9 /* CallbackQueue.swift */; };
+		36367DAE23FE9FD1007097B9 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DAD23FE9FD1007097B9 /* ImageModifier.swift */; };
 		36396DC723FCF56700DC85AF /* ImageDrawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36396DC623FCF56700DC85AF /* ImageDrawing.swift */; };
 		36396DC923FCFFEA00DC85AF /* GIFAnimatedImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36396DC823FCFFEA00DC85AF /* GIFAnimatedImage.swift */; };
 		36396DCB23FD11D500DC85AF /* ImageFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36396DCA23FD11D500DC85AF /* ImageFormat.swift */; };
@@ -42,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		36367D8B23FD34E3007097B9 /* CallbackQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallbackQueue.swift; sourceTree = "<group>"; };
+		36367DAD23FE9FD1007097B9 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		36396DC623FCF56700DC85AF /* ImageDrawing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDrawing.swift; sourceTree = "<group>"; };
 		36396DC823FCFFEA00DC85AF /* GIFAnimatedImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GIFAnimatedImage.swift; sourceTree = "<group>"; };
 		36396DCA23FD11D500DC85AF /* ImageFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageFormat.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 			children = (
 				364BD81823EFB8A800E536CF /* SessionDataTask.swift */,
 				3675B25123FCE22F00378C5C /* ImageDownloader.swift */,
+				36367DAD23FE9FD1007097B9 /* ImageModifier.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -280,6 +283,7 @@
 				3652E02A23EAD6F600509420 /* MemoryStorage.swift in Sources */,
 				3652E02823EAB31900509420 /* ImageCache.swift in Sources */,
 				364BD81B23EFC4F600E536CF /* CacheSerializer.swift in Sources */,
+				36367DAE23FE9FD1007097B9 /* ImageModifier.swift in Sources */,
 				3675B25223FCE22F00378C5C /* ImageDownloader.swift in Sources */,
 				364BD81623EFB5D400E536CF /* KingfisherError.swift in Sources */,
 				3652DFF823E668E600509420 /* Kingfisher.swift in Sources */,

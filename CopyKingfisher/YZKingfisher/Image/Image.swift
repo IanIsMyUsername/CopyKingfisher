@@ -20,6 +20,9 @@ private var imageSourceKey: Void?
 import CoreImage
 #endif
 
+import CoreGraphics
+import ImageIO
+
 
 private var animatedImageDataKey: Void?
 
@@ -79,6 +82,162 @@ extension KingfisherWrapper where Base: KFCrossPlatformImage {
         }
         return pixel * cgImage.bitsPerPixel / 8
     }
+}
+
+// MARK: - Image Conversion
+extension KingfisherWrapper where Base: KFCrossPlatformImage {
+    #if os(macOS)
+    static func image(cgImage: CGImage, scale: CGFloat, refImage: KFCrossPlatformImage?) -> KFCrossPlatformImage {
+        return KFCrossPlatformImage(cgImage: cgImage, size: .zero)
+    }
+    
+    /// Normalize the image. This getter does nothing on macOS but return the image itself.
+    public var normalized: KFCrossPlatformImage { return base }
+    #else
+    /// Creating an image from a give `CGImage` at scale and orientation for refImage. The method signature is for
+    /// compatibility of macOS version.
+    static func image(cgImage: CGImage, scale: CGFloat, refImage:KFCrossPlatformImage?) -> KFCrossPlatformImage {
+        return KFCrossPlatformImage(cgImage: cgImage, scale: scale, orientation: refImage?.imageOrientation ?? .up)
+    }
+    
+    /// Returns normalized image for current `base` image.
+    /// This method will try to redraw an image with orientation and scale considered.
+    public var normalized: KFCrossPlatformImage {
+        // prevent animated image (GIF) lose it's images
+        guard images == nil else {
+            return base.copy() as! KFCrossPlatformImage
+        }
+        
+        // No need to do anything if already up
+        guard base.imageOrientation != .up else {
+            return base.copy() as! KFCrossPlatformImage
+        }
+        
+        return draw(to: size, inverting: true, refImage: KFCrossPlatformImage()) {
+            fixOrientation(in: $0)
+            return true
+        }
+    }
+    
+    func fixOrientation(in context: CGContext) {
+
+        var transform = CGAffineTransform.identity
+
+        let orientation = base.imageOrientation
+
+        switch orientation {
+        case .down, .downMirrored:
+            transform = transform.translatedBy(x: size.width, y: size.height)
+            transform = transform.rotated(by: .pi)
+        case .left, .leftMirrored:
+            transform = transform.translatedBy(x: size.width, y: 0)
+            transform = transform.rotated(by: .pi / 2.0)
+        case .right, .rightMirrored:
+            transform = transform.translatedBy(x: 0, y: size.height)
+            transform = transform.rotated(by: .pi / -2.0)
+        case .up, .upMirrored:
+            break
+        #if compiler(>=5)
+        @unknown default:
+            break
+        #endif
+        }
+
+        //Flip image one more time if needed to, this is to prevent flipped image
+        switch orientation {
+        case .upMirrored, .downMirrored:
+            transform = transform.translatedBy(x: size.width, y: 0)
+            transform = transform.scaledBy(x: -1, y: 1)
+        case .leftMirrored, .rightMirrored:
+            transform = transform.translatedBy(x: size.height, y: 0)
+            transform = transform.scaledBy(x: -1, y: 1)
+        case .up, .down, .left, .right:
+            break
+        #if compiler(>=5)
+        @unknown default:
+            break
+        #endif
+        }
+
+        context.concatenate(transform)
+        switch orientation {
+        case .left, .leftMirrored, .right, .rightMirrored:
+            context.draw(cgImage!, in: CGRect(x: 0, y: 0, width: size.height, height: size.width))
+        default:
+            context.draw(cgImage!, in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
+        }
+    }
+    #endif
+    
+}
+
+
+// MARK: - Image Representation
+extension KingfisherWrapper where Base: KFCrossPlatformImage {
+    /// Returns PNG representation of `base` image.
+    ///
+    /// - Returns: PNG data of image.
+    public func pngRepresentation() -> Data? {
+        #if os(macOS)
+            guard let cgImage = cgImage else {
+                return nil
+            }
+            let rep = NSBitmapImageRep(cgImage: cgImage)
+            return rep.representation(using: .png, properties: [:])
+        #else
+            #if swift(>=4.2)
+            return base.pngData()
+            #else
+            return UII
+            #endif
+        #endif
+    }
+    
+    /// Returns JPEG representation of `base` image.
+    ///
+    /// - Parameter compressionQuality: The compression quality when converting image to JPEG data.
+    /// - Returns: JPEG data of image.
+    public func jpegRepresentation(compressionQuality: CGFloat) -> Data? {
+        #if os(macOS)
+            guard let cgImage = cgImage else {
+                return nil
+            }
+            let rep = NSBitmapImageRep(cgImage: cgImage)
+            return rep.representation(using:.jpeg, properties: [.compressionFactor: compressionQuality])
+        #else
+            #if swift(>=4.2)
+            return base.jpegData(compressionQuality: compressionQuality)
+            #else
+            return UIImageJPEGRepresentation(base, compressionQuality)
+            #endif
+        #endif
+    }
+    
+    /// Returns GIF representation of `base` image.
+    ///
+    /// - Returns: Original GIF data of image.
+    public func gifRepresentation() -> Data? {
+        return animatedImageData
+    }
+    
+    
+    /// Returns a data representation for `base` image, with the `format` as the format indicator.
+    /// - Parameters:
+    ///   - format: The format in which the output data should be. If `unknown`, the `base` image will be
+    ///   converted in the PNG representation.
+    ///   - compressionQuality: The compression quality when converting image to a lossy format data.
+    public func data(format: ImageFormat, compressionQuality: CGFloat = 1.0) -> Data? {
+            return autoreleasepool { () -> Data? in
+                let data: Data?
+                switch format {
+                case .PNG: data = pngRepresentation()
+                case .JPEG: data = jpegRepresentation(compressionQuality: compressionQuality)
+                case .GIF: data = gifRepresentation()
+                case .unknown: data = normalized.kf.pngRepresentation()
+                }
+                return data
+            }
+        }
 }
 
 // MARK: - Creating Images
@@ -153,7 +312,7 @@ extension KingfisherWrapper where Base: KFCrossPlatformImage {
     ///   - options: Options to use when creating the image.
     /// - Returns: An `Image` object represents the image if created. If the `data` is invalid or not supported, `nil`
     ///            will be returned.
-    func image(data: Data, options: ImageCreatingOptions) -> KFCrossPlatformImage? {
+    public static func image(data: Data, options: ImageCreatingOptions) -> KFCrossPlatformImage? {
         var image:KFCrossPlatformImage?
         switch data.kf.imageFormat {
         case .JPEG:
@@ -161,9 +320,11 @@ extension KingfisherWrapper where Base: KFCrossPlatformImage {
         case .PNG:
             image = KFCrossPlatformImage(data: data, scale: options.scale)
         case .GIF:
-            image = KingfisherWrapper.a
-            
+            image = KingfisherWrapper.animatedImage(data: data, options: options)
+        case .unknown:
+            image = KFCrossPlatformImage(data: data, scale: options.scale)
         }
-        
+        return image
     }
+    
 }
