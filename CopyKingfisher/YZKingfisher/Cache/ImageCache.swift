@@ -643,7 +643,96 @@ open class ImageCache {
         }
     }
 #endif
-        
+    
+    // MARK: Image Cache State
+
+    /// Returns the cache type for a given `key` and `identifier` combination.
+    /// This method is used for checking whether an image is cached in current cache.
+    /// It also provides information on which kind of cache can it be found in the return value.
+    ///
+    /// - Parameters:
+    ///   - key: The key used for caching the image.
+    ///   - identifier: Processor identifier which used for this image. Default is the `identifier` of
+    ///                 `DefaultImageProcessor.default`.
+    /// - Returns: A `CacheType` instance which indicates the cache status.
+    ///            `.none` means the image is not in cache or it is already expired.
+
+    open func imageCachedType(
+        forKey key: String,
+        processorIdentifier identifier: String = DefaultImageProcessor.default.identifier) -> CacheType
+    {
+        let computedKey = key.computedKey(with: identifier)
+        if memoryStorage.isCached(forKey: computedKey) {
+            return .memory
+        }
+        if diskStorage.isCached(forKey: computedKey) {
+            return .disk
+        }
+        return .none
+    }
+    
+    /// Returns whether the file exists in cache for a given `key` and `identifier` combination.
+    ///
+    /// - Parameters:
+    ///   - key: The key used for caching the image.
+    ///   - identifier: Processor identifier which used for this image. Default is the `identifier` of
+    ///                 `DefaultImageProcessor.default`.
+    /// - Returns: A `Bool` which indicates whether a cache could match the given `key` and `identifier` combination.
+    ///
+    /// - Note:
+    /// The return value does not contain information about from which kind of storage the cache matches.
+    /// To get the information about cache type according `CacheType`,
+    /// use `imageCachedType(forKey:processorIdentifier:)` instead.
+    func isCached(
+        forKey key: String,
+        processorIdentifier identifier: String = DefaultImageProcessor.default.identifier) -> Bool
+    {
+        return imageCachedType(forKey: key, processorIdentifier: identifier).cached
+    }
+    
+    /// Gets the hash used as cache file name for the key.
+    ///
+    /// - Parameters:
+    ///   - key: The key used for caching the image.
+    ///   - identifier: Processor identifier which used for this image. Default is the `identifier` of
+    ///                 `DefaultImageProcessor.default`.
+    /// - Returns: The hash which is used as the cache file name.
+    ///
+    /// - Note:
+    /// By default, for a given combination of `key` and `identifier`, `ImageCache` will use the value
+    /// returned by this method as the cache file name. You can use this value to check and match cache file
+    /// if you need.
+    open func hash(
+        forKey key: String,
+        processorIdentifier identifier: String = DefaultImageProcessor.default.identifier) -> String
+    {
+        let computedKey = key.computedKey(with: identifier)
+        return diskStorage.cacheFileName(forKey: computedKey)
+    }
+    
+    /// Calculates the size taken by the disk storage.
+    /// It is the total file size of all cached files in the `diskStorage` on disk in bytes.
+    ///
+    /// - Parameter handler: Called with the size calculating finishes. This closure is invoked from the main queue.
+    func calculateDiskStorageSize(completion handler: @escaping ((Result<UInt, KingfisherError>) -> Void)) {
+        ioQueue.async {
+            do {
+                let size = try self.diskStorage.totalSize()
+                DispatchQueue.main.async {
+                    handler(.success(size))
+                }
+            } catch {
+                if let error = error as? KingfisherError {
+                    DispatchQueue.main.async {
+                        handler(.failure(error))
+                    }
+                } else {
+                    assertionFailure("The internal thrown error should be a `KingfisherError`.")
+                }
+            }
+        }
+    }
+    
     /// Gets the cache path for the key.
     /// It is useful for projects with web view or anyone that needs access to the local file path.
     ///
@@ -665,7 +754,7 @@ open class ImageCache {
         processorIdentifier identifier: String = DefaultImageProcessor.default.identifier) -> String
     {
         let computedKey = key.computedKey(with: identifier)
-        return diskStorage.cacheFileURL(forKey: computedKey).path        
+        return diskStorage.cacheFileURL(forKey: computedKey).path
     }
 }
 extension Dictionary {

@@ -35,7 +35,7 @@ public enum KingfisherError: Error {
         /// The downloading task is cancelled by user. Code 1003.
         /// - task: The session data task which is cancelled.
         /// - token: The cancel token which is used for cancelling the task.
-//        case taskCancelled(task: )
+        case taskCancelled(task: SessionDataTask, token: SessionDataTask.CancelToken)
     }
     
     /// Represents the error reason during Kingfisher caching system.
@@ -107,6 +107,9 @@ public enum KingfisherError: Error {
     }
     
     // MARK: Member Cases
+    
+    /// Represents the error reason during networking request phase.
+    case requestError(reason: RequestErrorReason)
     /// Represents the error reason during Kingfisher caching system.
     case cacheError(reason: CacheErrorReason)
 }
