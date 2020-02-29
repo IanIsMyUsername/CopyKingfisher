@@ -50,21 +50,72 @@ class SessionDelegate: NSObject {
             
             let error = KingfisherError.requestError(reason: .taskCancelled(task: task, token: token))
             task.onTaskDone.call((.failure(error), [callback]))
-            
-            
-            
-            
-            
-            
-            
+            // No other callbacks waiting, we can clear the task now.
+            if !task.containsCallbacks {
+                let dataTask = task.task
+                self.remove(dataTask)
+            }
         }
+        let token = task.addCallback(callback)
+        tasks[url] = task
+        return DownloadTask(sessionTask: task, cancelToken: token)
+    }
+    
+    func append(
+        _ task: SessionDataTask,
+        url: URL,
+        callback: SessionDataTask.TaskCallback) -> DownloadTask
+    {
+        let token = task.addCallback(callback)
+        return DownloadTask(sessionTask: task, cancelToken: token)
         
     }
     
+    private func remove(_ task: URLSessionTask) {
+        guard let url = task.originalRequest?.url else {
+            return
+        }
+        lock.lock()
+        defer {lock.unlock()}
+        tasks[url] = nil
+    }
     
+    private func task(for task: URLSessionTask) -> SessionDataTask? {
+
+        guard let url = task.originalRequest?.url else {
+            return nil
+        }
+        
+        lock.lock()
+        defer {lock.unlock()}
+        guard let sessionTask = tasks[url] else {
+            return nil
+        }
+        guard sessionTask.task.taskIdentifier == task.taskIdentifier else {
+            return nil
+        }
+        return sessionTask
+    }
     
+    func task(for url: URL) -> SessionDataTask? {
+        lock.lock()
+        defer { lock.unlock() }
+        return tasks[url]
+    }
     
+    func cancelAll() {
+        lock.lock()
+        let taskValues = tasks.values
+        lock.unlock()
+        for task in taskValues {
+            task.forceCancel()
+        }
+    }
     
-    
-    
+    func cancel(url: URL) {
+        lock.lock()
+        let task = tasks[url]
+        lock.unlock()
+        task?.forceCancel()
+    }
 }
