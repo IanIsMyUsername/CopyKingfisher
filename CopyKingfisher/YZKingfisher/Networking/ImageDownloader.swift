@@ -86,8 +86,23 @@ open class ImageDownloader {
     /// The default downloader.
 //    public static let `default` = ImageDownloader()
     
+    /// Use this to set supply a configuration for the downloader. By default,
+    /// NSURLSessionConfiguration.ephemeralSessionConfiguration() will be used.
+    ///
+    /// You could change the configuration before a downloading task starts.
+    /// A configuration without persistent storage for caches is requested for downloader working correctly.
+    open var sessionConfiguration = URLSessionConfiguration.ephemeral {
+        didSet {
+            session.invalidateAndCancel()
+            session = URLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
+            
+        }
+    }
+    
     private let name: String
-    let sessionDelegate: 
+    private let sessionDelegate: SessionDelegate
+    private var session: URLSession
+    
     
     
     // MARK: Initializers
@@ -100,6 +115,10 @@ open class ImageDownloader {
             fatalError("[Kingfisher] You should specify a name for the downloader. "
                 + "A downloader with empty name is not permitted.")
         }
+        self.name = name
+        sessionDelegate = SessionDelegate()
+        session = URLSession(configuration: <#T##URLSessionConfiguration#>, delegate: <#T##URLSessionDelegate?#>, delegateQueue: <#T##OperationQueue?#>)
+        
         
         
     }

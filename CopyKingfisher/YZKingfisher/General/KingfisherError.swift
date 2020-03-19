@@ -38,6 +38,40 @@ public enum KingfisherError: Error {
         case taskCancelled(task: SessionDataTask, token: SessionDataTask.CancelToken)
     }
     
+    /// Represents the error reason during networking response phase.
+    ///
+    /// - invalidURLResponse: The response is not a valid URL response. Code 2001.
+    /// - invalidHTTPStatusCode: The response contains an invalid HTTP status code. Code 2002.
+    /// - URLSessionError: An error happens in the system URL session. Code 2003.
+    /// - dataModifyingFailed: Data modifying fails on returning a valid data. Code 2004.
+    /// - noURLResponse: The task is done but no URL response found. Code 2005.
+    public enum ResponseErrorReason {
+        
+        /// The response is not a valid URL response. Code 2001.
+        /// - response: The received invalid URL response.
+        ///             The response is expected to be an HTTP response, but it is not.
+        case invalidURLResponse(response: URLResponse)
+        
+        /// The response contains an invalid HTTP status code. Code 2002.
+        /// - Note:
+        ///   By default, status code 200..<400 is recognized as valid. You can override
+        ///   this behavior by conforming to the `ImageDownloaderDelegate`.
+        /// - response: The received response.
+        case invalidHTTPStatusCode(response: HTTPURLResponse)
+        
+        /// An error happens in the system URL session. Code 2003.
+        /// - error: The underlying URLSession error object.
+        case URLSessionError(error: Error)
+        
+        /// Data modifying fails on returning a valid data. Code 2004.
+        /// - task: The failed task.
+        case dataModifyingFailed(task: URLSessionDataTask)
+        
+        /// The task is done but no URL response found. Code 2005.
+        /// - task: The failed task.
+        case noURLResponse(task: URLSessionDataTask)
+    }
+    
     /// Represents the error reason during Kingfisher caching system.
     ///
     /// - fileEnumeratorCreationFailed: Cannot create a file enumerator for a certain disk URL. Code 3001.
@@ -110,6 +144,8 @@ public enum KingfisherError: Error {
     
     /// Represents the error reason during networking request phase.
     case requestError(reason: RequestErrorReason)
+    /// Represents the error reason during networking response phase.
+    case responseError(reason: ResponseErrorReason)
     /// Represents the error reason during Kingfisher caching system.
     case cacheError(reason: CacheErrorReason)
 }

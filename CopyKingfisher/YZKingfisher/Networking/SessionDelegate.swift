@@ -32,7 +32,7 @@ class SessionDelegate: NSObject {
     let onDidDownloadData = Delegate<SessionDataTask, Data?>()
     
     let onReceiveSessionChallenge = Delegate<SessionChallengeFunc, Void>()
-    let onReceiveSessionTaskChallenge = Delegate<SessionChallengeFunc, Void>()
+    let onReceiveSessionTaskChallenge = Delegate<SessionTaskChallengeFunc, Void>()
     
     func add(
         _ dataTask: URLSessionDataTask,
@@ -117,5 +117,44 @@ class SessionDelegate: NSObject {
         let task = tasks[url]
         lock.unlock()
         task?.forceCancel()
+    }
+}
+
+extension SessionDelegate: URLSessionDelegate {
+    
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        didReceive response: URLResponse,
+        completionHandler: @escaping (URLSession.ResponseDisposition) ->Void)
+    {
+        guard let httpResponse = response as? HTTPURLResponse else {
+            let error = KingfisherError.responseError(reason: .invalidURLResponse(response: response))
+            onCompleted(task: dataTask, result: .failure(error))
+            completionHandler(.cancel)
+            return
+        }
+        
+        let httpStatusCode = httpResponse.statusCode
+        guard onValidStatusCode.call(httpStatusCode) == true else {
+            let error = KingfisherError.responseError(reason: .invalidHTTPStatusCode(response: httpResponse))
+            onCompleted(task: dataTask, result: .failure(error))
+            completionHandler(.cancel)
+            return
+        }
+        completionHandler(.allow)
+    }
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data ) {
+        
+    }
+    
+    private func onCompleted(task: URLSessionTask, result: Result<(Data, URLResponse?), KingfisherError>)
+    {
+        guard let sessionTask = self.task(for: task) else {
+            return
+        }
+        remove(task)
+        sessionTask.onTaskDone.call((result, sessionTask.callbacks))
     }
 }
