@@ -84,7 +84,19 @@ open class ImageDownloader {
     
     // MARK: Singleton
     /// The default downloader.
-//    public static let `default` = ImageDownloader()
+    public static let `default` = ImageDownloader(name: "default")
+    
+    // MARK: Public Properties
+    /// The duration before the downloading is timeout. Default is 15 seconds.
+    open var downloadTimeout: TimeInterval = 15.0
+    
+    /// A set of trusted hosts when receiving server trust challenges. A challenge with host name contained in this
+    /// set will be ignored. You can use this set to specify the self-signed site. It only will be used if you don't
+    /// specify the `authenticationChallengeResponder`.
+    ///
+    /// If `authenticationChallengeResponder` is set, this property will be ignored and the implementation of
+    /// `authenticationChallengeResponder` will be used instead.
+    open var trustedHosts: Set<String>?
     
     /// Use this to set supply a configuration for the downloader. By default,
     /// NSURLSessionConfiguration.ephemeralSessionConfiguration() will be used.
@@ -95,15 +107,22 @@ open class ImageDownloader {
         didSet {
             session.invalidateAndCancel()
             session = URLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
-            
         }
     }
+    
+    /// Whether the download requests should use pipeline or not. Default is false.
+    open var requestUsePipelining = false
+    
+    /// Delegate of this `ImageDownloader` object. See `ImageDownloaderDelegate` protocol for more.
+    open weak var delegate: ImageDownloaderDelegate?
+    
+    /// A responder for authentication challenge.
+    /// Downloader will forward the received authentication challenge for the downloading session to this responder.
+    var authenticationChallengeResponder: AuthenticationChallengeResponsable?
     
     private let name: String
     private let sessionDelegate: SessionDelegate
     private var session: URLSession
-    
-    
     
     // MARK: Initializers
     
