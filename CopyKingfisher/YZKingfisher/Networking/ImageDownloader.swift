@@ -111,7 +111,7 @@ open class ImageDownloader {
     }
     
     /// Whether the download requests should use pipeline or not. Default is false.
-    open var requestUsePipelining = false
+    open var requestsUsePipelining = false
     
     /// Delegate of this `ImageDownloader` object. See `ImageDownloaderDelegate` protocol for more.
     open weak var delegate: ImageDownloaderDelegate?
@@ -135,12 +135,110 @@ open class ImageDownloader {
                 + "A downloader with empty name is not permitted.")
         }
         self.name = name
-        sessionDelegate = SessionDelegate()
-        session = URLSession(configuration: <#T##URLSessionConfiguration#>, delegate: <#T##URLSessionDelegate?#>, delegateQueue: <#T##OperationQueue?#>)
         
+        sessionDelegate = SessionDelegate()
+        session = URLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
+        
+        authenticationChallengeResponder = self
+    }
+    
+    deinit { session.invalidateAndCancel() }
+    private func setupSessionHandler() {
+        sessionDelegate.onReceiveSessionChallenge.delegate(on: self) { (self, invoke) in
+            self.authenticationChallengeResponder?.downloader(self, didReceive: invoke.1, completionHandler: invoke.2)
+        }
+        sessionDelegate.onReceiveSessionTaskChallenge.delegate(on: self) { (self, invoke) in
+            self.authenticationChallengeResponder?.downloader(self, task: invoke.1, didReceive: invoke.2, completionHandler: invoke.3)
+        }
+        sessionDelegate.onValidStatusCode.delegate(on: self) { (self, code) in
+            return (self.delegate ?? self).isValidStatusCode(code, for: self)
+        }
+        sessionDelegate.onDownloadingFinished.delegate(on: self) { (self, value) in
+            let (url, result) = value
+            do {
+                let value = try result.get()
+                self.delegate?.imageDownloader(self, didFinishDownloadingImageForURL: url, with: value, error: nil)
+            } catch {
+                self.delegate?.imageDownloader(self, didFinishDownloadingImageForURL: url, with: nil, error: error)
+            }
+        }
+        sessionDelegate.onDidDownloadData.delegate(on: self) { (self, task) in
+            guard let url = task.task.originalRequest?.url else {
+                return task.mutableData
+            }
+            return (self.delegate ?? self).imageDownloader(self, didDownload: task.mutableData, for: url)
+        }
+    }
+    
+    // MARK: Dowloading Task
+    /// Downloads an image with a URL and option. Invoked internally by Kingfisher. Subclasses must invoke super.
+    ///
+    /// - Parameters:
+    ///   - url: Target URL.
+    ///   - options: The options could control download behavior. See `KingfisherOptionsInfo`.
+    ///   - completionHandler: Called when the download progress finishes. This block will be called in the queue
+    ///                        defined in `.callbackQueue` in `options` parameter.
+    /// - Returns: A downloading task. You could call `cancel` on it to stop the download task.
+    @discardableResult
+    open func downloadImage(
+        with url: URL,
+        options: KingfisherParsedOptionsInfo,
+        completionHandler: ((Result<ImageLoadingResult, KingfisherError>) -> Void)? = nil) -> DownloadTask? {
+        // Creates default request.
+        var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: downloadTimeout)
+        request.httpShouldUsePipelining = requestsUsePipelining
+        
+        if let requestModifier = options.requestModifier {
+            // Modifies request before sending.
+            guard let r = requestModifier.modified(for: request) else {
+                options.callbackQueue.execute {
+                    completionHandler?(.failure(.requestError(reason: .emptyRequest)))
+                }
+                return nil
+            }
+            request = r
+        }
+        
+        // There is a possibility that request modifier changed the url to `nil` or empty.
+        // In this case, throw an error.
+        guard let url = request.url, !url.absoluteString.isEmpty else {
+            options.callbackQueue.execute {
+                completionHandler?(.failure(.requestError(reason: .invalidURL(request: request))))
+            }
+            return nil
+        }
+        
+        // Wraps `completionHandler` to `onCompleted` respectively.
+        
+        let onCompleted = completionHandler.map {
+            block -> Delegate<Result<ImageLoadingResult, KingfisherError>, Void> in
+            let delegate = Delegate<Result<ImageLoadingResult, KingfisherError>, Void>()
+            delegate.delegate(on: self) { (_, callback) in
+                block(callback)
+            }
+            return delegate
+        }
+        
+        // SessionDataTask.TaskCallback is a wrapper for `onCompleted` and `options` (for processor info)
+        let callback = SessionDataTask.TaskCallback(
+            onCompleted: onCompleted,
+            options: options
+        )
+        
+        // Ready to start download. Add it to session task manager (`sessionHandler`)
+        
+        let downloadTask: DownloadTask
+        if let existingTask = SessionDelegate.task(<#T##self: SessionDelegate##SessionDelegate#>) {
+            <#code#>
+        }
         
         
     }
     
-    
 }
+
+// Use the default implementation from extension of `AuthenticationChallengeResponsable`.
+extension ImageDownloader: AuthenticationChallengeResponsable {}
+
+// Use the default implementation from extension of `ImageDownloaderDelegate`.
+extension ImageDownloader: ImageDownloaderDelegate {}

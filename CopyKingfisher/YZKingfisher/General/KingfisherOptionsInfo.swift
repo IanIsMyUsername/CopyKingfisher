@@ -63,6 +63,19 @@ public enum KingfisherOptionsInfoItem {
     /// callbacks called from main queue.
     case callbackQueue(CallbackQueue)
     
+    /// The `ImageDownloadRequestModifier` contained will be used to change the request before it being sent.
+    /// This is the last chance you can modify the image download request. You can modify the request for some
+    /// customizing purpose, such as adding auth token to the header, do basic HTTP auth or something like url mapping.
+    /// The original request will be sent without any modification by default.
+    case requestModifier(ImageDownloadRequestModifier)
+    
+    /// The `ImageDownloadRedirectHandler` contained will be used to change the request before redirection.
+    /// This is the possibility you can modify the image download request during redirect. You can modify the request for
+    /// some customizing purpose, such as adding auth token to the header, do basic HTTP auth or something like url
+    /// mapping.
+    /// The original redirection request will be sent without any modification by default.
+    case redirectHandler(ImageDownloadRedirectHandler)
+    
     /// Processor for processing when the downloading finishes, a processor will convert the downloaded data to an image
     /// and/or apply some filter on it. If a cache is connected to the downloader (it happens when you are using
     /// KingfisherManager or any of the view extension methods), the converted image will also be sent to cache as well.
@@ -129,6 +142,7 @@ public struct KingfisherParsedOptionsInfo {
     
     public var fromMemoryCacheOrRefresh = false
     
+    public var requestModifier: ImageDownloadRequestModifier? = nil
     public var processor: ImageProcessor = DefaultImageProcessor.default
     public var imageModifier: ImageModifier? = nil
     
@@ -137,7 +151,8 @@ public struct KingfisherParsedOptionsInfo {
     public var preloadAllAnimationData = false
         
     public var scaleFactor: CGFloat = 1.0
-        
+    public var redirectHandler: ImageDownloadRedirectHandler? = nil
+    
     public var cacheSerializer: CacheSerializer = DefaultCacheSerializer.default
     public var onlyLoadFirstFrame = false
     
@@ -146,6 +161,8 @@ public struct KingfisherParsedOptionsInfo {
     public var memoryCacheAccessExtendingExpiration: ExpirationExtending = .cacheTime
     public var diskCacheExpiration: StorageExpiration? = nil
     public var diskCacheAccessExtendingExpiration: ExpirationExtending = .cacheTime
+    
+    var onDataReceived: [DataReceivingSideEffect]? = nil
     
     public init(_ info: KingfisherOptionsInfo?) {
         guard let info = info else {
@@ -158,6 +175,8 @@ public struct KingfisherParsedOptionsInfo {
             case .downloader(let value): downloader = value
             case .transition(let value): transition = value
             case .fromMemoryCacheOrRefresh: fromMemoryCacheOrRefresh = true
+            case .requestModifier(let value): requestModifier = value
+            case .redirectHandler(let value): redirectHandler = value
             case .processor(let value): processor = value
             case .imageModifier(let value): imageModifier = value
             case .cacheSerializer(let value): cacheSerializer = value
@@ -179,5 +198,9 @@ extension KingfisherParsedOptionsInfo {
     var imageCreatingOptions: ImageCreatingOptions {
         return ImageCreatingOptions(scale: scaleFactor, duration: 0.0, preloadAll: preloadAllAnimationData, onlyFirstFrame: onlyLoadFirstFrame )
     }
-    
+}
+
+protocol DataReceivingSideEffect: AnyObject {
+    var onShouldApply: () -> Bool { get set }
+    func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data)
 }

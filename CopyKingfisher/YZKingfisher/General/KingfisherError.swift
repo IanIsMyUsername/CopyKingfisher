@@ -65,11 +65,11 @@ public enum KingfisherError: Error {
         
         /// Data modifying fails on returning a valid data. Code 2004.
         /// - task: The failed task.
-        case dataModifyingFailed(task: URLSessionDataTask)
+        case dataModifyingFailed(task: SessionDataTask)
         
         /// The task is done but no URL response found. Code 2005.
         /// - task: The failed task.
-        case noURLResponse(task: URLSessionDataTask)
+        case noURLResponse(task: SessionDataTask)
     }
     
     /// Represents the error reason during Kingfisher caching system.

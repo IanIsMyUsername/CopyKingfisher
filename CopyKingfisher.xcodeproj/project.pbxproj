@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		360D299A242789360089A554 /* ImageDownloaderDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D2999242789360089A554 /* ImageDownloaderDelegate.swift */; };
 		360D299C242793BD0089A554 /* AuthenticationChallengeResponsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299B242793BD0089A554 /* AuthenticationChallengeResponsable.swift */; };
+		360D299E243EA8F60089A554 /* RequestModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299D243EA8F60089A554 /* RequestModifier.swift */; };
+		360D29A024454E330089A554 /* RedirectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299F24454E330089A554 /* RedirectHandler.swift */; };
 		36367D8C23FD34E3007097B9 /* CallbackQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367D8B23FD34E3007097B9 /* CallbackQueue.swift */; };
 		36367DAE23FE9FD1007097B9 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DAD23FE9FD1007097B9 /* ImageModifier.swift */; };
 		36367DB724076187007097B9 /* KingfisherManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DB624076187007097B9 /* KingfisherManager.swift */; };
@@ -49,6 +51,8 @@
 /* Begin PBXFileReference section */
 		360D2999242789360089A554 /* ImageDownloaderDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDownloaderDelegate.swift; sourceTree = "<group>"; };
 		360D299B242793BD0089A554 /* AuthenticationChallengeResponsable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationChallengeResponsable.swift; sourceTree = "<group>"; };
+		360D299D243EA8F60089A554 /* RequestModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModifier.swift; sourceTree = "<group>"; };
+		360D299F24454E330089A554 /* RedirectHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectHandler.swift; sourceTree = "<group>"; };
 		36367D8B23FD34E3007097B9 /* CallbackQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallbackQueue.swift; sourceTree = "<group>"; };
 		36367DAD23FE9FD1007097B9 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		36367DB624076187007097B9 /* KingfisherManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherManager.swift; sourceTree = "<group>"; };
@@ -108,6 +112,8 @@
 				363F76032408D4AA00740AFD /* SessionDelegate.swift */,
 				360D2999242789360089A554 /* ImageDownloaderDelegate.swift */,
 				360D299B242793BD0089A554 /* AuthenticationChallengeResponsable.swift */,
+				360D299D243EA8F60089A554 /* RequestModifier.swift */,
+				360D299F24454E330089A554 /* RedirectHandler.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -319,12 +325,14 @@
 				36396DCB23FD11D500DC85AF /* ImageFormat.swift in Sources */,
 				36396DC723FCF56700DC85AF /* ImageDrawing.swift in Sources */,
 				3652E00023E67D5200509420 /* ImageDataProvider.swift in Sources */,
+				360D29A024454E330089A554 /* RedirectHandler.swift in Sources */,
 				3652DFFC23E670B600509420 /* Source.swift in Sources */,
 				3652DFF623E54A1600509420 /* ImageView+YZKingfisher.swift in Sources */,
 				36367D8C23FD34E3007097B9 /* CallbackQueue.swift in Sources */,
 				3652DFE023E3DAAC00509420 /* AppDelegate.swift in Sources */,
 				3652DFE223E3DAAC00509420 /* SceneDelegate.swift in Sources */,
 				3652E03323ED322100509420 /* Runtime.swift in Sources */,
+				360D299E243EA8F60089A554 /* RequestModifier.swift in Sources */,
 				3652DFFE23E6782600509420 /* Resource.swift in Sources */,
 				3652E00323EA508900509420 /* Placeholder.swift in Sources */,
 				3675B25423FCE2D100378C5C /* ImageTransition.swift in Sources */,
