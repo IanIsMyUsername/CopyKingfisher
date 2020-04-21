@@ -140,6 +140,15 @@ public enum KingfisherError: Error {
         case cannotSetCacheFileAttribute(filePath: String, attributes: [FileAttributeKey: Any], error: Error)
     }
     
+    /// Represents the error reason during image processing phase.
+    ///
+    /// - processingFailed: Image processing fails. There is no valid output image from the processor. Code 4001.
+    public enum ProcessorErrorReason {
+        /// Image processing fails. There is no valid output image from the processor. Code 4001.
+        /// - processor: The `ImageProcessor` used to process the image or its data in `item`.
+        /// - item: The image or its data content.
+        case processingFailed(processor: ImageProcessor, item: ImageProcessItem)
+    }
     // MARK: Member Cases
     
     /// Represents the error reason during networking request phase.
@@ -148,5 +157,7 @@ public enum KingfisherError: Error {
     case responseError(reason: ResponseErrorReason)
     /// Represents the error reason during Kingfisher caching system.
     case cacheError(reason: CacheErrorReason)
+    /// Represents the error reason during image processing phase.
+    case processorError(reason: ProcessorErrorReason)
 }
 

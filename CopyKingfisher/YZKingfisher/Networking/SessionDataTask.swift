@@ -30,9 +30,7 @@ public class SessionDataTask {
     
     var callbacks: [SessionDataTask.TaskCallback] {
         lock.lock()
-        defer {
-            lock.unlock()
-        }
+        defer { lock.unlock() }
         return Array(callbacksStore.values)
     }
     

@@ -49,11 +49,20 @@ public enum KingfisherOptionsInfoItem {
     /// the image being retrieved from cache, set `.forceRefresh` as well.
     case transition(ImageTransition)
     
+    /// Associated `Float` value will be set as the priority of image download task. The value for it should be
+    /// between 0.0~1.0. If this option not set, the default value (`URLSessionTask.defaultPriority`) will be used.
+    case downloadPriority(Float)
+    
     /// If set, Kingfisher will try to retrieve the image from memory cache first. If the image is not in memory
     /// cache, then it will ignore the disk cache but download the image again from network. This is useful when
     /// you want to display a changeable image behind the same url at the same app session, while avoiding download
     /// it for multiple times.
     case fromMemoryCacheOrRefresh
+    
+    /// Decode the image in background thread before using. It will decode the downloaded image data and do a off-screen
+    /// rendering to extract pixel information in background. This can speed up display, but will cost more time to
+    /// prepare the image for using.
+    case backgroundDecode
     
     /// The associated value will be used as the target queue of dispatch callbacks when retrieving images from
     /// cache. If not set, Kingfisher will use `.mainCurrentOrAsync` for callbacks.
@@ -126,6 +135,12 @@ public enum KingfisherOptionsInfoItem {
     /// By default, the underlying `DiskStorage.Backend` uses the initial cache expiration as extending value: .cacheTime.
     /// To disable extending option at all add diskCacheAccessExtendingExpiration(.none) to options.
     case diskCacheAccessExtendingExpiration(ExpirationExtending)
+    
+    /// Decides on which queue the image processing should happen. By default, Kingfisher uses a pre-defined serial
+    /// queue to process images. Use this option to change this behavior. For example, specify a `.mainCurrentOrAsync`
+    /// to let the image be processed in main queue to prevent a possible flickering (but with a possibility of
+    /// blocking the UI, especially if the processor needs a lot of time to run).
+    case processingQueue(CallbackQueue)
 }
 
 // Improve performance by parsing the input `KingfisherOptionsInfo` (self) first.
@@ -139,8 +154,10 @@ public struct KingfisherParsedOptionsInfo {
     public var originalCache: ImageCache? = nil
     public var downloader: ImageDownloader? = nil
     public var transition:ImageTransition = .none
+    public var downloadPriority: Float = URLSessionTask.defaultPriority
     
     public var fromMemoryCacheOrRefresh = false
+    public var backgroundDecode = false
     
     public var requestModifier: ImageDownloadRequestModifier? = nil
     public var processor: ImageProcessor = DefaultImageProcessor.default
@@ -161,7 +178,7 @@ public struct KingfisherParsedOptionsInfo {
     public var memoryCacheAccessExtendingExpiration: ExpirationExtending = .cacheTime
     public var diskCacheExpiration: StorageExpiration? = nil
     public var diskCacheAccessExtendingExpiration: ExpirationExtending = .cacheTime
-    
+    public var processingQueue: CallbackQueue? = nil
     var onDataReceived: [DataReceivingSideEffect]? = nil
     
     public init(_ info: KingfisherOptionsInfo?) {
@@ -174,7 +191,9 @@ public struct KingfisherParsedOptionsInfo {
             case .originalCache(let value): originalCache = value
             case .downloader(let value): downloader = value
             case .transition(let value): transition = value
+            case .downloadPriority(let value): downloadPriority = value
             case .fromMemoryCacheOrRefresh: fromMemoryCacheOrRefresh = true
+            case .backgroundDecode: backgroundDecode = true
             case .requestModifier(let value): requestModifier = value
             case .redirectHandler(let value): redirectHandler = value
             case .processor(let value): processor = value
@@ -186,7 +205,7 @@ public struct KingfisherParsedOptionsInfo {
             case .memoryCacheAccessExtendingExpiration(let expirationExtending): memoryCacheAccessExtendingExpiration = expirationExtending
             case .diskCacheExpiration(let expiration): diskCacheExpiration = expiration
             case .diskCacheAccessExtendingExpiration(let expirationExtending): diskCacheAccessExtendingExpiration = expirationExtending
-                
+            case .processingQueue(let queue): processingQueue = queue
             }
         }
        
@@ -203,4 +222,27 @@ extension KingfisherParsedOptionsInfo {
 protocol DataReceivingSideEffect: AnyObject {
     var onShouldApply: () -> Bool { get set }
     func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data)
+}
+
+class ImageLoadingProgressSideEffect: DataReceivingSideEffect {
+    var onShouldApply: () -> Bool = { return true }
+    
+    let block: DownloadProgressBlock
+    
+    init(_ block: @escaping DownloadProgressBlock) {
+        self.block = block
+    }
+    
+    func onDataReceived(_ session: URLSession, task: SessionDataTask, data: Data) {
+        DispatchQueue.main.async {
+            guard self.onShouldApply() else { return }
+            guard let expectedContentLength = task.task.response?.expectedContentLength, expectedContentLength != -1 else {
+                return
+            }
+            
+            let dataLength = Int64(task.mutableData.count)
+            self.block(dataLength, expectedContentLength)
+            
+        }
+    }
 }

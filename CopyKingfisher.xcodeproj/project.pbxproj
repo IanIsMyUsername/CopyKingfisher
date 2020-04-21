@@ -11,6 +11,7 @@
 		360D299C242793BD0089A554 /* AuthenticationChallengeResponsable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299B242793BD0089A554 /* AuthenticationChallengeResponsable.swift */; };
 		360D299E243EA8F60089A554 /* RequestModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299D243EA8F60089A554 /* RequestModifier.swift */; };
 		360D29A024454E330089A554 /* RedirectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299F24454E330089A554 /* RedirectHandler.swift */; };
+		360D29A224493ECE0089A554 /* ImageDataProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D29A124493ECE0089A554 /* ImageDataProcessor.swift */; };
 		36367D8C23FD34E3007097B9 /* CallbackQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367D8B23FD34E3007097B9 /* CallbackQueue.swift */; };
 		36367DAE23FE9FD1007097B9 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DAD23FE9FD1007097B9 /* ImageModifier.swift */; };
 		36367DB724076187007097B9 /* KingfisherManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DB624076187007097B9 /* KingfisherManager.swift */; };
@@ -53,6 +54,7 @@
 		360D299B242793BD0089A554 /* AuthenticationChallengeResponsable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationChallengeResponsable.swift; sourceTree = "<group>"; };
 		360D299D243EA8F60089A554 /* RequestModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModifier.swift; sourceTree = "<group>"; };
 		360D299F24454E330089A554 /* RedirectHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectHandler.swift; sourceTree = "<group>"; };
+		360D29A124493ECE0089A554 /* ImageDataProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProcessor.swift; sourceTree = "<group>"; };
 		36367D8B23FD34E3007097B9 /* CallbackQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallbackQueue.swift; sourceTree = "<group>"; };
 		36367DAD23FE9FD1007097B9 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		36367DB624076187007097B9 /* KingfisherManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherManager.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				360D299B242793BD0089A554 /* AuthenticationChallengeResponsable.swift */,
 				360D299D243EA8F60089A554 /* RequestModifier.swift */,
 				360D299F24454E330089A554 /* RedirectHandler.swift */,
+				360D29A124493ECE0089A554 /* ImageDataProcessor.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -322,6 +325,7 @@
 				360D299C242793BD0089A554 /* AuthenticationChallengeResponsable.swift in Sources */,
 				364BD81923EFB8A800E536CF /* SessionDataTask.swift in Sources */,
 				3675B25023FA386C00378C5C /* ImageProcessor.swift in Sources */,
+				360D29A224493ECE0089A554 /* ImageDataProcessor.swift in Sources */,
 				36396DCB23FD11D500DC85AF /* ImageFormat.swift in Sources */,
 				36396DC723FCF56700DC85AF /* ImageDrawing.swift in Sources */,
 				3652E00023E67D5200509420 /* ImageDataProvider.swift in Sources */,

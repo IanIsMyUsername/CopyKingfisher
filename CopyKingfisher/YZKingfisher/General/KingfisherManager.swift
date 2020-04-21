@@ -47,4 +47,4 @@ public struct PropagationError {
 /// The downloading task updated block type. The parameter `newTask` is the updated new task of image setting process.
 /// It is a `nil` if the image loading does not require an image downloading process. If an image downloading is issued,
 /// this value will contain the actual `DownloadTask` for you to keep and cancel it later if you need.
-public typealias DownloadTaskUpdatedBlock = ((_ newTask: ) -> Void)
+public typealias DownloadTaskUpdatedBlock = ((_ newTask: DownloadTask? ) -> Void)

@@ -33,7 +33,45 @@ extension KingfisherWrapper where Base: KFCrossPlatformImage {
 }
 
 // MARK: - Decoding Image
-
+extension KingfisherWrapper where Base: KFCrossPlatformImage {
+    
+    /// Returns the decoded image of the `base` image. It will draw the image in a plain context and return the data
+    /// from it. This could improve the drawing performance when an image is just created from data but not yet
+    /// displayed for the first time.
+    ///
+    /// - Note: This method only works for CG-based image. The current image scale is kept.
+    ///         For any non-CG-based image or animated image, `base` itself is returned.
+    public var decoded: KFCrossPlatformImage { return decoded(scale: scale) }
+    
+    /// Returns decoded image of the `base` image at a given scale. It will draw the image in a plain context and
+    /// return the data from it. This could improve the drawing performance when an image is just created from
+    /// data but not yet displayed for the first time.
+    ///
+    /// - Parameter scale: The given scale of target image should be.
+    /// - Returns: The decoded image ready to be displayed.
+    ///
+    /// - Note: This method only works for CG-based image. The current image scale is kept.
+    ///         For any non-CG-based image or animated image, `base` itself is returned.
+    public func decoded(scale: CGFloat) -> KFCrossPlatformImage {
+        // Prevent animated image (GIF) losing it's images
+        #if os(iOS)
+        if imageSource != nil { return base }
+        #else
+        if images != nil { return base }
+        #endif
+        
+        guard let imageRef = cgImage else {
+            assertionFailure("[Kingfisher] Decoding only works for CG-based image.")
+            return base
+        }
+        
+        let size = CGSize(width: CGFloat(imageRef.width) / scale, height: CGFloat(imageRef.height) / scale)
+        return draw(to: size, inverting: true, scale: scale) { context in
+            context.draw(imageRef, in: CGRect(origin: .zero, size: size))
+            return true
+        }
+    }
+}
 
 extension KingfisherWrapper where Base: KFCrossPlatformImage {
     func beginContext(size: CGSize, scale: CGFloat, inverting: Bool = false) -> CGContext? {

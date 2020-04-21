@@ -106,7 +106,7 @@ extension ImageDownloaderDelegate {
         return (200..<400).contains(code)
     }
     
-    func imageDownloader(_ downloader: ImageDownloader, didDownload data: Data, for url: URL) -> Data? {
+    public func imageDownloader(_ downloader: ImageDownloader, didDownload data: Data, for url: URL) -> Data? {
         return data
     }
 }
