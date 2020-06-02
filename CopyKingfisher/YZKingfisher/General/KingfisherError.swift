@@ -149,6 +149,41 @@ public enum KingfisherError: Error {
         /// - item: The image or its data content.
         case processingFailed(processor: ImageProcessor, item: ImageProcessItem)
     }
+    
+    /// Represents the error reason during image setting in a view related class.
+    ///
+    /// - emptySource: The input resource is empty or `nil`. Code 5001.
+    /// - notCurrentSourceTask: The source task is finished, but it is not the one expected now. Code 5002.
+    /// - dataProviderError: An error happens during getting data from an `ImageDataProvider`. Code 5003.
+    public enum ImageSettingErrorReason {
+        
+        /// The input resource is empty or `nil`. Code 5001.
+        case emptySource
+        
+        /// The resource task is finished, but it is not the one expected now. This usually happens when you set another
+        /// resource on the view without cancelling the current on-going one. The previous setting task will fail with
+        /// this `.notCurrentSourceTask` error when a result got, regardless of it being successful or not for that task.
+        /// The result of this original task is contained in the associated value.
+        /// Code 5002.
+        /// - result: The `RetrieveImageResult` if the source task is finished without problem. `nil` if an error
+        ///           happens.
+        /// - error: The `Error` if an issue happens during image setting task. `nil` if the task finishes without
+        ///          problem.
+        /// - source: The original source value of the task.
+        case notCurrentSourceTask(result: RetrieveImageResult?, error: Error?, source: Source)
+        
+        /// An error happens during getting data from an `ImageDataProvider`. Code 5003.
+        case dataProviderError(provider: ImageDataProvider, error: Error)
+        
+        /// No more alternative `Source` can be used in current loading process. It means that the
+        /// `.alternativeSources` are used and Kingfisher tried to recovery from the original error, but still
+        /// fails for all the given alternative sources. The associated value holds all the errors encountered during
+        /// the load process, including the original source loading error and all the alternative sources errors.
+        /// Code 5004.
+        case alternativeSourcesExhausted([PropagationError])
+        
+    }
+    
     // MARK: Member Cases
     
     /// Represents the error reason during networking request phase.
@@ -159,5 +194,7 @@ public enum KingfisherError: Error {
     case cacheError(reason: CacheErrorReason)
     /// Represents the error reason during image processing phase.
     case processorError(reason: ProcessorErrorReason)
+    /// Represents the error reason during image setting in a view related class.
+    case imageSettingError(reason: ImageSettingErrorReason)
 }
 

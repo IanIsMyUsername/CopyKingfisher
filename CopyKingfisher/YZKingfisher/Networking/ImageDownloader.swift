@@ -6,8 +6,6 @@
 //  Copyright © 2020 陈奕舟. All rights reserved.
 //
 
-import Foundation
-
 #if os(macOS)
 import AppKit
 #else
@@ -140,6 +138,7 @@ open class ImageDownloader {
         session = URLSession(configuration: sessionConfiguration, delegate: sessionDelegate, delegateQueue: nil)
         
         authenticationChallengeResponder = self
+        setupSessionHandler()
     }
     
     deinit { session.invalidateAndCancel() }
@@ -282,7 +281,7 @@ open class ImageDownloader {
                             queue.execute {
                                 callback.onCompleted?.call(imageResult)
                             }
-                    }
+                        }
                         processor.process()
                     
                     case .failure(let error):
@@ -290,7 +289,7 @@ open class ImageDownloader {
                             let queue = callback.options.callbackQueue
                             queue.execute {
                                 callback.onCompleted?.call(.failure(error)) }
-                    }
+                        }
                 }
             }
             delegate?.imageDownloader(self, willDownloadImageForURL: url, with: request)

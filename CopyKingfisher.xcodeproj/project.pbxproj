@@ -12,6 +12,9 @@
 		360D299E243EA8F60089A554 /* RequestModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299D243EA8F60089A554 /* RequestModifier.swift */; };
 		360D29A024454E330089A554 /* RedirectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D299F24454E330089A554 /* RedirectHandler.swift */; };
 		360D29A224493ECE0089A554 /* ImageDataProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D29A124493ECE0089A554 /* ImageDataProcessor.swift */; };
+		360D2A0F246E15380089A554 /* SizeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D2A0E246E15370089A554 /* SizeExtensions.swift */; };
+		360D2A11247213470089A554 /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D2A10247213470089A554 /* Filter.swift */; };
+		360D2A132485CE2C0089A554 /* Box.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360D2A122485CE2C0089A554 /* Box.swift */; };
 		36367D8C23FD34E3007097B9 /* CallbackQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367D8B23FD34E3007097B9 /* CallbackQueue.swift */; };
 		36367DAE23FE9FD1007097B9 /* ImageModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DAD23FE9FD1007097B9 /* ImageModifier.swift */; };
 		36367DB724076187007097B9 /* KingfisherManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36367DB624076187007097B9 /* KingfisherManager.swift */; };
@@ -55,6 +58,9 @@
 		360D299D243EA8F60089A554 /* RequestModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestModifier.swift; sourceTree = "<group>"; };
 		360D299F24454E330089A554 /* RedirectHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedirectHandler.swift; sourceTree = "<group>"; };
 		360D29A124493ECE0089A554 /* ImageDataProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDataProcessor.swift; sourceTree = "<group>"; };
+		360D2A0E246E15370089A554 /* SizeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeExtensions.swift; sourceTree = "<group>"; };
+		360D2A10247213470089A554 /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
+		360D2A122485CE2C0089A554 /* Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Box.swift; sourceTree = "<group>"; };
 		36367D8B23FD34E3007097B9 /* CallbackQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallbackQueue.swift; sourceTree = "<group>"; };
 		36367DAD23FE9FD1007097B9 /* ImageModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageModifier.swift; sourceTree = "<group>"; };
 		36367DB624076187007097B9 /* KingfisherManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KingfisherManager.swift; sourceTree = "<group>"; };
@@ -205,6 +211,7 @@
 				36396DC623FCF56700DC85AF /* ImageDrawing.swift */,
 				36396DC823FCFFEA00DC85AF /* GIFAnimatedImage.swift */,
 				36396DCA23FD11D500DC85AF /* ImageFormat.swift */,
+				360D2A10247213470089A554 /* Filter.swift */,
 			);
 			path = Image;
 			sourceTree = "<group>";
@@ -229,6 +236,8 @@
 				3675B21123F3AAAF00378C5C /* String+MD5.swift */,
 				36367D8B23FD34E3007097B9 /* CallbackQueue.swift */,
 				36367DB824076E34007097B9 /* Delegate.swift */,
+				360D2A0E246E15370089A554 /* SizeExtensions.swift */,
+				360D2A122485CE2C0089A554 /* Box.swift */,
 			);
 			path = Utility;
 			sourceTree = "<group>";
@@ -310,9 +319,11 @@
 				36367DAE23FE9FD1007097B9 /* ImageModifier.swift in Sources */,
 				3675B25223FCE22F00378C5C /* ImageDownloader.swift in Sources */,
 				360D299A242789360089A554 /* ImageDownloaderDelegate.swift in Sources */,
+				360D2A0F246E15380089A554 /* SizeExtensions.swift in Sources */,
 				364BD81623EFB5D400E536CF /* KingfisherError.swift in Sources */,
 				3652DFF823E668E600509420 /* Kingfisher.swift in Sources */,
 				3652DFE423E3DAAC00509420 /* ViewController.swift in Sources */,
+				360D2A11247213470089A554 /* Filter.swift in Sources */,
 				3652E03523ED7CCA00509420 /* DiskStorage.swift in Sources */,
 				36367DB924076E34007097B9 /* Delegate.swift in Sources */,
 				3652E03123ED30AE00509420 /* Image.swift in Sources */,
@@ -331,6 +342,7 @@
 				3652E00023E67D5200509420 /* ImageDataProvider.swift in Sources */,
 				360D29A024454E330089A554 /* RedirectHandler.swift in Sources */,
 				3652DFFC23E670B600509420 /* Source.swift in Sources */,
+				360D2A132485CE2C0089A554 /* Box.swift in Sources */,
 				3652DFF623E54A1600509420 /* ImageView+YZKingfisher.swift in Sources */,
 				36367D8C23FD34E3007097B9 /* CallbackQueue.swift in Sources */,
 				3652DFE023E3DAAC00509420 /* AppDelegate.swift in Sources */,

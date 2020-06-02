@@ -8,6 +8,30 @@
 
 import Foundation
 
+extension CGFloat {
+    var isEven: Bool {
+        return truncatingRemainder(dividingBy: 2.0) == 0
+    }
+    
+}
+
+#if canImport(UIKit)
+import UIKit
+extension RectCorner {
+    var uiRectCorner: UIRectCorner {
+        
+        var result: UIRectCorner = []
+        
+        if contains(.topLeft) { result.insert(.topLeft) }
+        if contains(.topRight) { result.insert(.topRight) }
+        if contains(.bottomLeft) { result.insert(.bottomLeft) }
+        if contains(.bottomRight) { result.insert(.bottomRight) }
+        
+        return result
+    }
+}
+#endif
+
 extension Date {
     var isPast: Bool {
         return isPast(referenceDate: Date())

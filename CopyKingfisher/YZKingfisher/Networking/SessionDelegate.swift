@@ -68,7 +68,6 @@ class SessionDelegate: NSObject {
     {
         let token = task.addCallback(callback)
         return DownloadTask(sessionTask: task, cancelToken: token)
-        
     }
     
     private func remove(_ task: URLSessionTask) {

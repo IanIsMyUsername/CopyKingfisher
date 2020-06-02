@@ -62,7 +62,8 @@ extension AuthenticationChallengeResponsable {
         _ downloader: ImageDownloader,
         task: URLSessionTask,
         didReceive challenge: URLAuthenticationChallenge,
-        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    {
         completionHandler(.performDefaultHandling, nil)
     }
     

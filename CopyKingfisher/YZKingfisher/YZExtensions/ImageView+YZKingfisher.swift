@@ -55,12 +55,69 @@ extension KingfisherWrapper where Base: KFCrossPlatformImageView {
     /// Since this method will perform UI changes, you must call it from the main thread.
     /// Both `progressBlock` and `completionHandler` will be also executed in the main thread.
     ///
-//    @discardableResult
-//    func setImage(
-//        with source:
-//    ) {
-//
-//    }
+    @discardableResult
+    public func setImage(
+        with source: Source?,
+        placeholder: Placeholder? = nil,
+        options: KingfisherOptionsInfo? = nil,
+        progressBlock: DownloadProgressBlock? = nil,
+        completionHandler: ((Result<RetrieveImageResult, KingfisherError>) -> Void)? = nil) -> DownloadTask?
+    {
+        var mutatingSelf = self
+        guard let source = source else {
+            mutatingSelf.placeholder = placeholder
+            mutatingSelf.taskIdentifier = nil
+            completionHandler?(.failure(KingfisherError.imageSettingError(reason: .emptySource)))
+            return nil
+        }
+    
+        var options = KingfisherParsedOptionsInfo()
+        
+    }
+
+    
+}
+
+// MARK: - Associated Object
+private var taskIdentifierKey: Void?
+private var indicatorKey: Void?
+private var indicatorTypeKey: Void?
+private var placeholderKey: Void?
+private var imageTaskKey: Void?
+
+extension KingfisherWrapper where Base: KFCrossPlatformImageView {
+    
+//    Mark: Properties
+    public private(set) var taskIdentifier: Source.Identifier.Value? {
+        get {
+            let box: Box<Source.Identifier.Value>? = getAssociatedObject(base, &taskIdentifierKey)
+            return box?.value
+        }
+        set {
+            let box = newValue.map{ Box($0) }
+            setRetainedAssociatedObject(base, &taskIdentifierKey, box)
+        }
+    }
+    
+    
+    /// Represents the `Placeholder` used for this image view. A `Placeholder` will be shown in the view while
+    /// it is downloading an image.
+    public private(set) var placeholder: Placeholder? {
+        get { return getAssociatedObject(base, &placeholderKey) }
+        set {
+            if let previousPlaceholder = placeholder {
+                previousPlaceholder.remove(from: base)
+            }
+            
+            if let newPlaceholder = newValue {
+                newPlaceholder.add(to: base)
+            } else {
+                base.image = nil
+            }
+            
+            setRetainedAssociatedObject(base, &placeholderKey, newValue)
+        }
+    }
     
 }
 

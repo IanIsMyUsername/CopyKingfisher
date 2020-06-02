@@ -72,6 +72,11 @@ public enum KingfisherOptionsInfoItem {
     /// callbacks called from main queue.
     case callbackQueue(CallbackQueue)
     
+    /// The associated value will be used as the scale factor when converting retrieved data to an image.
+    /// Specify the image scale, instead of your screen scale. You may need to set the correct scale when you dealing
+    /// with 2x or 3x retina images. Otherwise, Kingfisher will convert the data to image object at `scale` 1.0.
+    case scaleFactor(CGFloat)
+    
     /// The `ImageDownloadRequestModifier` contained will be used to change the request before it being sent.
     /// This is the last chance you can modify the image download request. You can modify the request for some
     /// customizing purpose, such as adding auth token to the header, do basic HTTP auth or something like url mapping.
@@ -164,10 +169,9 @@ public struct KingfisherParsedOptionsInfo {
     public var imageModifier: ImageModifier? = nil
     
     public var callbackQueue: CallbackQueue = .mainCurrentOrAsync
-    
+    public var scaleFactor: CGFloat = 1.0
     public var preloadAllAnimationData = false
         
-    public var scaleFactor: CGFloat = 1.0
     public var redirectHandler: ImageDownloadRedirectHandler? = nil
     
     public var cacheSerializer: CacheSerializer = DefaultCacheSerializer.default
@@ -200,6 +204,7 @@ public struct KingfisherParsedOptionsInfo {
             case .imageModifier(let value): imageModifier = value
             case .cacheSerializer(let value): cacheSerializer = value
             case .callbackQueue(let value): callbackQueue = value
+            case .scaleFactor(let value): scaleFactor = value
             case .loadDiskFileSynchronously: loadDiskFileSynchronously = true
             case .memoryCacheExpiration(let expiration): memoryCacheExpiration = expiration
             case .memoryCacheAccessExtendingExpiration(let expirationExtending): memoryCacheAccessExtendingExpiration = expirationExtending
